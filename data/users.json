@@ -1,0 +1,16 @@
+[
+  {
+    "id": "admin_init",
+    "username": "admin",
+    "password": "admin10",
+    "score": 0,
+    "role": "admin"
+  },
+  {
+    "id": "u_1793113850283_867",
+    "username": "jayw",
+    "password": "1234",
+    "score": 0,
+    "role": "user"
+  }
+]

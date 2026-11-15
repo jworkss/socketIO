@@ -1,0 +1,16 @@
+{
+  "name": "interactive-realtime-rooms",
+  "version": "1.0.0",
+  "description": "App interactiva en tiempo real con HTTPS, Socket.io y dibujo de ondas",
+  "main": "server.js",
+  "scripts": {
+    "cert": "node certs/generate-cert.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ip": "^2.0.1",
+    "qrcode-terminal": "^0.12.0",
+    "selfsigned": "^2.4.1",
+    "socket.io": "^4.7.5"
+  }
+}

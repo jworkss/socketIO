@@ -1,0 +1,476 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  background-color: #0f172a;
+  color: #f8fafc;
+  overflow: hidden;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+}
+
+.view {
+  display: none;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.view.active {
+  display: flex;
+  flex-direction: column;
+}
+
+.card {
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: auto;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.card.wide {
+  max-width: 800px;
+}
+
+input,
+button {
+  font-size: 1rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: white;
+}
+
+input:focus {
+  outline: 2px solid #38bdf8;
+}
+
+.btn {
+  cursor: pointer;
+  font-weight: bold;
+  border: none;
+  text-align: center;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn.primary {
+  background: #0284c7;
+}
+.btn.secondary {
+  background: #475569;
+}
+.btn.success {
+  background: #16a34a;
+}
+.btn.danger {
+  background: #dc2626;
+}
+.btn.warning {
+  background: #d97706;
+}
+.btn.small {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+}
+.btn.full {
+  width: 100%;
+}
+.btn-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.error-msg {
+  color: #f87171;
+  font-size: 0.9rem;
+  min-height: 1.2rem;
+}
+.status-msg {
+  font-size: 0.9rem;
+  min-height: 1.2rem;
+}
+.hidden {
+  display: none !important;
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.list li {
+  background: #334155;
+  padding: 0.75rem;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Canvas y controles del juego */
+#view-game {
+  padding: 0;
+  display: none;
+  position: relative;
+  background: #000;
+  height: 100vh;
+  height: 100dvh;
+  grid-template-rows: 8% 92%;
+  overflow: hidden;
+}
+#view-game.active {
+  display: grid;
+}
+
+.game-hud {
+  min-height: 0;
+  background: rgba(15, 23, 42, 0.85);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2%;
+  z-index: 10;
+  font-size: clamp(0.75rem, 2dvh, 1rem);
+}
+
+.controls-overlay {
+  min-height: 0;
+  padding: 1.5%;
+  background: rgba(15, 23, 42, 0.9);
+  overflow: hidden;
+}
+
+.game-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.game-settings label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.game-settings select {
+  min-width: 130px;
+  padding: 0.5rem;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  background: #0f172a;
+  color: #fff;
+  font: inherit;
+}
+
+.waveform-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  border: 1px solid #475569;
+  border-radius: 8px;
+  background: #0f172a;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.drawing-layout {
+  height: 100%;
+  display: grid;
+  grid-template-rows: 8% 9% minmax(0, 1fr) 8% 8%;
+  gap: 1.2%;
+}
+
+.drawing-instructions,
+.drawing-status {
+  min-height: 0;
+  overflow: hidden;
+  font-size: clamp(0.72rem, 1.8dvh, 1rem);
+}
+
+.waveform-actions {
+  display: flex;
+  min-height: 0;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.waveform-actions > * {
+  min-width: 0;
+}
+
+.waveform-actions button {
+  padding: 0.5%;
+  font-size: clamp(0.65rem, 1.7dvh, 0.95rem);
+}
+
+.drawing-actions button {
+  flex: 1;
+  height: 100%;
+}
+
+.round-waiting {
+  height: 100%;
+  display: grid;
+  place-content: center;
+  gap: 2%;
+  padding: 4%;
+  text-align: center;
+  font-size: clamp(0.85rem, 2.2dvh, 1.2rem);
+}
+
+.round-waiting button {
+  width: 100%;
+}
+
+.recording-monitor-canvas {
+  display: block;
+  width: min(90vw, 760px);
+  height: clamp(120px, 34dvh, 300px);
+  border: 1px solid #475569;
+  border-radius: 8px;
+  background: #0f172a;
+}
+
+.recording-level-meter,
+.mic-level-meter {
+  height: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #334155;
+}
+
+.recording-level-fill,
+.mic-level-fill {
+  width: 0;
+  height: 100%;
+  background: #38bdf8;
+  transition: width 80ms linear;
+}
+
+.recording-actions,
+.mic-calibration-actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.recording-actions button,
+.mic-calibration-actions button {
+  flex: 1;
+}
+
+.results-layout {
+  height: 100%;
+  display: grid;
+  grid-template-rows: 8% minmax(0, 1fr) 16% 22%;
+  gap: 1%;
+}
+
+.results-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1%;
+  overflow: hidden;
+  font-size: clamp(0.7rem, 1.8dvh, 1rem);
+}
+
+.results-heading > strong,
+.results-heading > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.results-heading > span {
+  margin-left: auto;
+  text-align: right;
+}
+
+.results-heading .btn {
+  flex: 0 0 auto;
+  padding: 0.4rem;
+  font-size: clamp(0.65rem, 1.5dvh, 0.85rem);
+  white-space: nowrap;
+}
+
+.results-chart {
+  min-height: 0;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.results-waveform-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.waveform-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  align-content: center;
+  gap: 2%;
+  overflow: hidden;
+  font-size: clamp(0.65rem, 1.6dvh, 0.9rem);
+}
+
+.waveform-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.waveform-legend-item > span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.waveform-legend-line {
+  flex: 0 0 1rem;
+  height: 3px;
+}
+
+.results-scoreboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 2%;
+  overflow: hidden;
+  font-size: clamp(0.65rem, 1.6dvh, 0.9rem);
+}
+
+.results-scoreboard li {
+  min-height: 0;
+  overflow: hidden;
+  padding: 1.5%;
+}
+
+.results-scoreboard li span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.results-scoreboard li strong {
+  white-space: nowrap;
+}
+
+.mic-calibration-dialog {
+  width: min(92vw, 640px);
+  max-width: 92vw;
+  max-height: 90vh;
+  max-height: 90dvh;
+  margin: auto;
+  padding: 0;
+  border: 1px solid #475569;
+  border-radius: 12px;
+  background: #1e293b;
+  color: #f8fafc;
+}
+
+.mic-calibration-dialog::backdrop {
+  background: rgba(2, 6, 23, 0.8);
+}
+
+.mic-calibration-panel {
+  display: grid;
+  gap: 1rem;
+  max-height: 90vh;
+  max-height: 90dvh;
+  overflow-y: auto;
+  padding: clamp(1rem, 4vw, 1.5rem);
+}
+
+.mic-calibration-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.mic-calibration-header button {
+  flex: 0 0 auto;
+  padding: 0.5rem 0.75rem;
+}
+
+.mic-preview-canvas {
+  display: block;
+  width: 100%;
+  height: clamp(120px, 24dvh, 220px);
+  border: 1px solid #475569;
+  border-radius: 8px;
+  background: #0f172a;
+}
+
+.mic-setting {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.mic-setting input,
+.mic-noise-setting input {
+  accent-color: #38bdf8;
+}
+
+.mic-noise-setting {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.mic-calibration-panel small {
+  color: #cbd5e1;
+  line-height: 1.4;
+}
+
+/* Tablas Admin */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th,
+td {
+  padding: 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid #334155;
+}

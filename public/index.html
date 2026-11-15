@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Realtime Interactive Game</title>
+    <link rel="stylesheet" href="styles.css" />
+    <!-- Socket.io -->
+    <script src="/socket.io/socket.io.js"></script>
+  </head>
+  <body>
+    <!-- Vista: Auth -->
+    <section id="view-auth" class="view active">
+      <div class="card">
+        <h2>Conexión</h2>
+        <div id="auth-error" class="error-msg"></div>
+        <input type="text" id="auth-username" placeholder="Usuario (min 4)" />
+        <input
+          type="password"
+          id="auth-password"
+          placeholder="Contraseña (min 4)"
+        />
+        <div class="btn-group">
+          <button id="btn-login" class="btn primary">Iniciar Sesión</button>
+          <button id="btn-register" class="btn secondary">Registrarse</button>
+        </div>
+        <hr />
+        <button id="btn-guest" class="btn warning">Modo Invitado</button>
+      </div>
+    </section>
+
+    <!-- Vista: Admin -->
+    <section id="view-admin" class="view">
+      <div class="card wide">
+        <h2>Panel Administrador</h2>
+        <button id="btn-admin-close" class="btn secondary">Ir al Lobby</button>
+        <table id="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Usuario</th>
+              <th>Score</th>
+              <th>Nueva Clave</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="admin-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Vista: Lobby -->
+    <section id="view-lobby" class="view">
+      <div class="top-bar">
+        <span id="user-display"></span>
+        <div>
+          <button id="btn-open-admin" class="btn small primary hidden">
+            Admin
+          </button>
+          <button id="btn-logout" class="btn small danger">Salir</button>
+        </div>
+      </div>
+      <div class="card">
+        <button id="btn-create-room" class="btn success full">
+          Crear Sala
+        </button>
+        <h3>Salas Disponibles</h3>
+        <ul id="rooms-list" class="list"></ul>
+      </div>
+    </section>
+
+    <!-- Vista: Room / Espera -->
+    <section id="view-room" class="view">
+      <div class="card">
+        <h2 id="room-title">Sala</h2>
+        <div id="players-list" class="list"></div>
+        <div id="host-game-settings" class="game-settings hidden">
+          <label for="recording-time">
+            Tiempo para grabar
+            <select id="recording-time">
+              <option value="5">5 segundos</option>
+              <option value="10" selected>10 segundos</option>
+              <option value="15">15 segundos</option>
+              <option value="20">20 segundos</option>
+            </select>
+          </label>
+          <label for="guessing-time">
+            Tiempo para adivinar
+            <select id="guessing-time">
+              <option value="15">15 segundos</option>
+              <option value="20">20 segundos</option>
+              <option value="30" selected>30 segundos</option>
+              <option value="45">45 segundos</option>
+              <option value="60">60 segundos</option>
+            </select>
+          </label>
+        </div>
+        <p id="room-settings-summary" class="status-msg"></p>
+        <button id="btn-enable-mic" class="btn warning full">
+          Ajustar micrófono
+        </button>
+        <p id="mic-status" class="status-msg" role="status" aria-live="polite"></p>
+        <div class="btn-group">
+          <button id="btn-ready" class="btn primary" disabled>Listo</button>
+          <button id="btn-leave-room" class="btn secondary">
+            Salir al Lobby
+          </button>
+          <button id="btn-start-game" class="btn success hidden">
+            Iniciar Partida
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Vista de juego -->
+    <section id="view-game" class="view">
+      <header class="game-hud">
+        <span id="hud-round">Ronda -/-</span>
+        <span id="hud-mode">Modo: -</span>
+      </header>
+
+      <!-- Controles dinámicos de la ronda -->
+      <div id="game-controls" class="controls-overlay"></div>
+    </section>
+
+    <dialog id="mic-calibration-dialog" class="mic-calibration-dialog">
+      <section class="mic-calibration-panel">
+        <header class="mic-calibration-header">
+          <h2>Calibrar micrófono</h2>
+          <button id="btn-close-mic-calibration" class="btn secondary">
+            Cerrar
+          </button>
+        </header>
+        <p>
+          Habla con el volumen normal y ajusta la sensibilidad mientras ves la
+          señal en vivo.
+        </p>
+        <canvas
+          id="mic-preview-canvas"
+          class="mic-preview-canvas"
+          aria-label="Señal de audio del micrófono en vivo"
+        ></canvas>
+        <div
+          class="mic-level-meter"
+          role="meter"
+          aria-label="Nivel del micrófono"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+        >
+          <div id="mic-level-fill" class="mic-level-fill"></div>
+        </div>
+        <label class="mic-setting" for="mic-sensitivity">
+          <span>Sensibilidad: <output id="mic-sensitivity-value">100%</output></span>
+          <input
+            id="mic-sensitivity"
+            type="range"
+            min="50"
+            max="200"
+            step="5"
+            value="100"
+          />
+        </label>
+        <label class="mic-noise-setting">
+          <input id="mic-noise-suppression" type="checkbox" checked />
+          <span>Reducción de ruido del navegador</span>
+        </label>
+        <p id="mic-calibration-status" class="status-msg" role="status" aria-live="polite">
+          Inicia la prueba para escuchar y ver el nivel de entrada.
+        </p>
+        <div class="mic-calibration-actions">
+          <button id="btn-start-mic-test" class="btn primary">
+            Iniciar prueba
+          </button>
+          <button id="btn-stop-mic-test" class="btn secondary" disabled>
+            Detener prueba
+          </button>
+        </div>
+        <small>
+          La reducción depende del navegador y del dispositivo; no elimina todo
+          el ruido. Aumentar la sensibilidad también puede amplificarlo.
+        </small>
+      </section>
+    </dialog>
+
+    <!-- Scripts modulares -->
+    <script src="audioEngine.js"></script>
+    <script type="module" src="main.js"></script>
+  </body>
+</html>
